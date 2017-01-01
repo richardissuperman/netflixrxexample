@@ -18,15 +18,22 @@ import rx.schedulers.Schedulers;
 /**
  * Created by zhongqing on 22/3/16.
  */
+
+/**
+ *  mock services to retrieve data
+ * **/
 public class VideoService {
+
+    /** a service for getting video objects by user id **/
     public static Observable<Video> getVideoObservableByUserId(String userid){
         return  Observable.create(new Observable.OnSubscribe<Video>() {
             @Override
             public void call(Subscriber<? super Video> subscriber) {
                 try {
-                    /** 同步方法获取api call返回值 **/
                     String response = new Query(userid).connect();
-                    /** 解析jsonarray成一个个Video对象,并且一个个传入onnext ,此时的video对象是不完整的**/
+                    /** parse the video objects from json string and emit them one by one, noted that by using this
+                     * API call, the video objects are incomplete ones, which need rating, meta data, and bookmark
+                     * **/
                     JSONArray array = new JSONArray(response);
                     for( int i = 0 ; i<array.length() ;i++ ){
                         subscriber.onNext( Video.getVideoFromJson( array.getJSONObject(i) ) );
@@ -37,29 +44,27 @@ public class VideoService {
                 }
             }
         })
-                /** call运行在io线程上 **/
+                /** run the source in IO thread pool **/
                 .subscribeOn(Schedulers.io());
 
     }
 
 
+    /**  **/
     public static Observable<MetaData> getMetaDataObservable( String videoId ){
         return Observable.create(new Observable.OnSubscribe<String>() {
             @Override
             public void call(Subscriber<? super String> subscriber) {
-                /** 同步方法获取metadata返回值 **/
                 String response = new MetaDataQuery(videoId).connect();
                 subscriber.onNext( response );
             }
         })
-                /** 用map把api call的返回值转换成MetaData **/
                 .map(new Func1<String, MetaData>() {
                     @Override
                     public MetaData call(String s) {
                         return new MetaData(s);
                     }
                 })
-                /** call运行在io线程上 **/
                 .subscribeOn(Schedulers.io());
     }
 
@@ -68,19 +73,16 @@ public class VideoService {
         return Observable.create(new Observable.OnSubscribe<String>() {
             @Override
             public void call(Subscriber<? super String> subscriber) {
-                /** 同步方法获取bookmark返回值 **/
                 String response = new BookmarkQuery(videoId).connect();
                 subscriber.onNext( response );
             }
         })
-                /** 用map把api call的返回值转换成MetaData **/
                 .map(new Func1<String, BookMark>() {
                     @Override
                     public BookMark call(String s) {
                         return new BookMark(s);
                     }
                 })
-                /** call运行在io线程上 **/
                 .subscribeOn(Schedulers.io());
     }
 
@@ -89,7 +91,6 @@ public class VideoService {
             @Override
             public void call(Subscriber<? super String> subscriber) {
                 try {
-                    /** 同步方法获取bookmark返回值 **/
                     String response = new RatingQuery(videoId).connect();
                     subscriber.onNext(response);
                 }
@@ -98,14 +99,12 @@ public class VideoService {
                 }
             }
         })
-                /** 用map把api call的返回值转换成MetaData **/
                 .map(new Func1<String, Rating>() {
                     @Override
                     public Rating call(String response) {
                         return new Rating(response);
                     }
                 })
-                /** call运行在io线程上 **/
                 .subscribeOn(Schedulers.io());
     }
 

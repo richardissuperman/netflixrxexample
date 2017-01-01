@@ -13,7 +13,7 @@ public class Video {
     public String id;
     public String otherData;
 
-    /** 缺失的部分 **/
+
     public MetaData metaData;
     public Rating rating;
     public BookMark bookMark;
@@ -24,6 +24,7 @@ public class Video {
     public Video(){
         //do something
     }
+    /** just ignore the implementation in this sample XD **/
     public Video(JSONObject object){
         //do something
     }

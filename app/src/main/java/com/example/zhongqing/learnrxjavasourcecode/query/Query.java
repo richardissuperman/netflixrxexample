@@ -8,6 +8,7 @@ public class Query {
 
     }
 
+    /** we use a fake implementation here, imagine replace it with any HTTP call by using OKHttp or other **/
     public String connect(){
         try {
             Thread.sleep(1000);

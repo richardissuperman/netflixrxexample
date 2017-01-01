@@ -24,14 +24,16 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         VideoService.getVideoObservableByUserId( "userId" )
-                /** 获取前十个video **/
+                /** take the first 10 video objects **/
                 .take(10)
                 /** nested call back! **/
                 .flatMap(new Func1<Video, Observable<Video>>() {
                     @Override
                     public Observable<Video> call(Video video) {
 
-                        /** 获取前三个不同observable并且把他们merge到一起,合成新的video **/
+                        /** after we get the video object, we need to run 3 tasks to retrieve
+                         * this video object's bookmark, metadata, as well as rating.
+                         * **/
                         Observable<BookMark> o1 = video.getBookmarObservable();
                         Observable<MetaData> o2 = video.getMetaDataObservable();
                         Observable<Rating> o3 = video.getRatingObservable();
@@ -53,7 +55,7 @@ public class MainActivity extends AppCompatActivity {
                           });
                     }
                 })
-                /** 在安卓主线程上接受发射的结果 **/
+                /** receive those completed video objects in android's main thread **/
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(new Subscriber<Video>() {
                     @Override
